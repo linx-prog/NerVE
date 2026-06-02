@@ -32,7 +32,7 @@ class RawPCDataset():
 
         self.pc_file = p['pc_file']
         self.dataset_path = p['data_path']
-        self.names = np.loadtxt(p['file_list'], dtype=str)
+        self.names = np.atleast_1d(np.loadtxt(p['file_list'], dtype=str))
 
 
     def __len__(self):
