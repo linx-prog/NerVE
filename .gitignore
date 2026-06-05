@@ -113,3 +113,6 @@ generation/
 scripts/
 exp/configs/
 utils/local/
+
+# data files
+trilon_samples/
