@@ -1,16 +1,20 @@
-import os, pickle
+import os, pickle, argparse
 import torch
 import data, utils
 
 import os.path as op
 from time import time
 
+parser = argparse.ArgumentParser()
+parser.add_argument('--gpu', type=int, default=0)
+args = parser.parse_args()
+
 ROOT_path = os.path.dirname(os.path.abspath(__file__))
 model_path = op.join(ROOT_path, 'results', 'Demo')
 output_path = op.join(ROOT_path, 'trilon')
 os.makedirs(output_path, exist_ok=True)
 
-device = torch.device('cuda')
+device = torch.device(f'cuda:{args.gpu}')
 trilon_config = {
     'data_path': op.join(ROOT_path, 'trilon'),
     'file_list': op.join(ROOT_path, 'trilon', 'data_list.txt'),
@@ -28,20 +32,21 @@ t0 = time()
 with torch.no_grad():
     for idx in range(len(trilon_dataset)):
         model_input, info = trilon_dataset.get_data(idx, normalize='cube_face')
-        model_input = {key: val.cuda() for key,val in model_input.items()}
+        model_input = {key: val.to(device) for key,val in model_input.items()}
         model_input['info'] = info
 
         name = info['name']
         print(f'Processing {idx}: {name}')
-        
+
         res = {}
         edge_cube, peid = model_cube.predict_curve(model_input)
         res.update(edge_cube)
         edge_face = model_face.predict_curve(model_input, peid)
+        # print(edge_face)
         res.update(edge_face)
 
         model_input, info = trilon_dataset.get_data(idx, normalize='geom')
-        model_input = {key: val.cuda() for key,val in model_input.items()}
+        model_input = {key: val.to(device) for key,val in model_input.items()}
         model_input['info'] = info
         edge_geom = model_geom.predict_curve(model_input, peid)
         res.update(edge_geom)

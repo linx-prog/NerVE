@@ -1,5 +1,5 @@
 import bpy,bmesh
-import os, glob, pickle
+import os, glob, pickle, sys
 import os.path as op
 from time import time
 
@@ -19,7 +19,10 @@ count = 0
 
 root_path = op.dirname(op.abspath(__file__))
 root_path = op.dirname(op.dirname(root_path))
-dataset_path = op.join(root_path, 'demo')
+
+argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
+dataset_name = argv[0] if argv else 'demo'
+dataset_path = op.join(root_path, dataset_name)
 for data_path in glob.glob(op.join(dataset_path, '**/*.pkl'), recursive=True):
     file = op.basename(data_path)
     if 'pwl_curve' not in file:
